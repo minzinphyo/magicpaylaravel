@@ -1,0 +1,18 @@
+.app-page-title{
+    padding: 10px 30px;
+    margin: -30px -30px 0px;
+}
+
+.action-icon a{
+    padding: 5px;
+    font-size: 18px;
+    border-radius: 5px;
+}
+
+.action-icon a:hover{
+    background-color: #f5f5f5;
+}
+
+.table th{
+    text-align: center;
+}
