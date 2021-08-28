@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Wallet;
 use Illuminate\Http\Request;
+use App\Helpers\UUIDGenerate;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
@@ -45,6 +48,11 @@ class LoginController extends Controller
         return Auth::guard();
     }
 
+    public function username()
+    {
+        return 'phone';
+    }
+
     public function showLoginForm()
     {
         return view('auth.login');
@@ -57,6 +65,21 @@ class LoginController extends Controller
         $user -> login_at = date('Y-m-d H:i:s');
         $user -> update();
 
+        Wallet::firstOrCreate(
+
+            [
+                'user_id' =>  $user->id,
+            ],
+
+            [
+                'account_number' => UUIDGenerate::accountNumber(),
+                'amount' => 0,
+            ]
+
+        );
+
         return redirect($this->redirectTo);
     }
+
+
 }

@@ -28,11 +28,11 @@
                         <tr class="bg-light">
                             <th>Name</th>
                             <th>Email</th>
-                            <th class="no-sort">Phone</th>
-                            <th class="no-sort">Ip</th>
-                            <th class="no-sort">User Agent</th>
-                            <th class="no-sort">Date</th>
-                            <th class="no-sort">Action</th>
+                            <th>Phone</th>
+                            <th>Ip</th>
+                            <th>User Agent</th>
+                            <th>Date</th>
+                            <th>Action</th>
                         </tr>
                     </thead><tbody>
 
@@ -103,10 +103,9 @@
                         name: 'created_at.timestamp',
                         data: {
                             _: 'created_at.display',
-                            sort: 'created_at.timestamp'
+                            sort: 'created_at.timestamp',
                         },
                         width: '15%',
-
 
 
                 },

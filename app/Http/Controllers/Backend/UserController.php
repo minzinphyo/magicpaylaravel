@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Helpers\UUIDGenerate;
 use App\User;
 use App\Wallet;
 use Carbon\Carbon;
@@ -25,8 +26,8 @@ class UserController extends Controller
     }
 
     public function ssd(){
-        $data = \App\User::query();
-       //$data = \App\User::latest('created_at')->get();
+        //$data = \App\User::query();
+       $data = \App\User::query()->latest('created_at')->get();
        //$data = \App\User::latest('created_at');
       // $data = \App\User::select('id', 'name', 'email','phone','ip','user_agent','password', 'created_at', 'updated_at');
        //$data = \App\User::select(['id', 'name', 'email','phone','ip','user_agent','password', 'created_at', 'updated_at']);
@@ -34,10 +35,6 @@ class UserController extends Controller
 
             ->addColumn('action',function($each){
 
-              if(auth()->id() == $each->id){
-                 $edit_icon = '<a href= "'.route('admin.user.edit',$each->id).'" class="text-warning"><i class="fas fa-edit"></i></a>';
-                 return '<div class="action-icon">' . $edit_icon .'</div>';
-              }
                  $edit_icon = '<a href= "'.route('admin.user.edit',$each->id).'" class="text-warning"><i class="fas fa-edit"></i></a>';
                  $delete_icon = '<a href= "#" class="text-danger delete"  data-id = " '.$each->id.' "><i class="fas fa-trash"></i></a>';
 
@@ -92,13 +89,7 @@ class UserController extends Controller
 
     public function store(StoreUser $request){
 
-        $user = new User();
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->phone = $request->phone;
-            $user->password = Hash::make($request->password);
-            $user->save();
-
+            /*
             $wallet = Wallet::where('user_id',$user->id)->first();
             if(!$wallet){
                 $wallet = new Wallet();
@@ -108,19 +99,18 @@ class UserController extends Controller
                 $wallet->save();
             }
 
-            return redirect()->route('admin.user.index')->with('create',"Successfully Created");
+            return redirect()->route('admin.user.index')->with('create',"Successfully Created");*/
 
-
-
-
-        /*
         DB::beginTransaction();
 
         try{
 
-
-
-
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->phone = $request->phone;
+            $user->password = Hash::make($request->password);
+            $user->save();
 
             Wallet::firstOrCreate(
 
@@ -129,7 +119,7 @@ class UserController extends Controller
                 ],
 
                 [
-                    'account_number' => '1234123412341234',
+                    'account_number' => UUIDGenerate::accountNumber(),
                     'amount' => 0,
                 ]
 
@@ -143,10 +133,9 @@ class UserController extends Controller
 
         }catch(\Exception $e){
             DB::rollBack();
-            return back()->withErrors(['fail' => 'Something Wrong'])->withInput();
+            return back()->withErrors(['fail' => 'Something Wrong.'. $e->getMessage()])->withInput();
         }
 
-        */
 
 
         //return response()->json(["message" => "Admin user created"], 201);
@@ -158,14 +147,43 @@ class UserController extends Controller
     }
 
     public function update($id,UpdateUser $request){
-        $user = User::findOrFail($id);
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
-        $user->password = $request-> password ? Hash::make($request->password) : $user->password;
-        $user->update();
 
-        return redirect()->route('admin.user.index')->with('create',"Successfully Updated");
+        DB::beginTransaction();
+        try{
+
+            $user = User::findOrFail($id);
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->phone = $request->phone;
+            $user->password = $request-> password ? Hash::make($request->password) : $user->password;
+            $user->update();
+
+
+            Wallet::firstOrCreate(
+
+                [
+                    'user_id' =>  $user->id,
+                ],
+
+                [
+                    'account_number' => UUIDGenerate::accountNumber(),
+                    'amount' => 0,
+                ]
+
+            );
+            //var_dump($user->id);
+
+            DB::commit();
+
+            return redirect()->route('admin.user.index')->with('create',"Successfully Updated");
+
+        }catch(\Exception $e){
+
+            DB::rollBack();
+            return back()->withErrors(['fail' => 'Something Wrong.'. $e->getMessage()])->withInput();
+
+        }
+
 
         //return response()->json(["message" => "records updated successfully"], 200);
     }
@@ -174,6 +192,7 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
         $user->delete();
+        $user->wallet ? $user->wallet->delete() : $user->delete();
 
         return 'success';
         //return response()->json(["message" => "records deleted"], 202);

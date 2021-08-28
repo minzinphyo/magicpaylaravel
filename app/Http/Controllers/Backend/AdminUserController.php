@@ -25,7 +25,7 @@ class AdminUserController extends Controller
     }
 
     public function ssd(){
-       // $data = \App\AdminUser::query();
+         //$data = \App\AdminUser::query();
        $data = \App\AdminUser::latest('created_at')->get();
        //$data = \App\AdminUser::latest('created_at');
       // $data = \App\AdminUser::select('id', 'name', 'email','phone','ip','user_agent','password', 'created_at', 'updated_at');
@@ -46,10 +46,10 @@ class AdminUserController extends Controller
 
             })
             ->editColumn('created_at', function ($user) {
-             return [
-                 'display' => Carbon::parse($user->created_at)->format('d/m/Y'),
-                 'timestamp' => $user->created_at->timestamp
-             ];
+                return [
+                    'display' => Carbon::parse($user->created_at)->format('d/m/Y'),
+                    'timestamp' => $user->created_at->timestamp
+                ];
             })
             ->editColumn('user_agent',function($each){
                if($each->user_agent){
@@ -77,7 +77,7 @@ class AdminUserController extends Controller
                }
                return "-";
             })
-            ->rawColumns(['user_agent','action'])
+            ->rawColumns(['user_agent','created_at','action'])
             ->make(true);
     }
 

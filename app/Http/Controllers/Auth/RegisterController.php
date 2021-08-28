@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Wallet;
 use Illuminate\Http\Request;
+use App\Helpers\UUIDGenerate;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
@@ -53,8 +55,8 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['required', 'string','unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'phone' => ['required', 'string','unique:users','min:9','max:11',],
+            'password' => ['required', 'string', 'min:8','max:12', 'confirmed'],
         ]);
     }
 
@@ -80,6 +82,19 @@ class RegisterController extends Controller
         $user -> user_agent = $request->server('HTTP_USER_AGENT');
         $user -> login_at = date('Y-m-d H:i:s');
         $user -> update();
+
+        Wallet::firstOrCreate(
+
+            [
+                'user_id' =>  $user->id,
+            ],
+
+            [
+                'account_number' => UUIDGenerate::accountNumber(),
+                'amount' => 0,
+            ]
+
+        );
 
         return redirect($this->redirectTo);
     }

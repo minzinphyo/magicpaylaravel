@@ -14,9 +14,12 @@
         "guzzlehttp/guzzle": "^6.3.1|^7.0.1",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^7.29",
+        "laravel/passport": "~9.0",
         "laravel/tinker": "^2.5",
         "laravel/ui": "2.4",
         "proengsoft/laravel-jsvalidation": "^4.4",
+        "simplesoftwareio/simple-qrcode": "~2",
+        "vinkla/hashids": "^8.1",
         "yajra/laravel-datatables-oracle": "^9.18"
     },
     "require-dev": {
@@ -43,6 +46,10 @@
         "classmap": [
             "database/seeds",
             "database/factories"
+        ],
+        "files": [
+            "App/Helpers/EncryptDecrypt.php",
+            "App/Helpers/ResponseHelper.php"
         ]
     },
     "autoload-dev": {
